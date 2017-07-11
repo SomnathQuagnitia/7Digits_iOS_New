@@ -1,0 +1,292 @@
+//
+//  ChatViewController.m
+//  7EvenDigits
+//
+//  Created by Krishna on 06/10/14.
+//  Copyright (c) 2014 Krishna. All rights reserved.
+//
+
+#import "ChatViewController.h"
+#import "SMMessageViewTableCell.h"
+
+@interface ChatViewController ()
+
+@end
+
+@implementation ChatViewController
+@synthesize textFieldObj,tableViewObj;
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    
+    self.title=@"Chat";
+    
+    UIBarButtonItem *menuBarBtn=[[UIBarButtonItem alloc]initWithTitle:@"Home" style:UIBarButtonItemStylePlain target:self action:@selector(handelHome)];
+    self.navigationItem.leftBarButtonItem=menuBarBtn;
+}
+
+#pragma mark==Navigate to home view
+-(void)handelHome
+{
+    [self slideViewWithAnimation];
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+//dip
+
+-(void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:YES];
+    chatMessageDict=[[NSMutableDictionary alloc]init];
+    [chatMessageDict setValue:@"Dipti" forKey:@"sname"];
+    [chatMessageDict setValue:@"Hello..How Are you?" forKey:@"alert"];
+
+    textFieldObj.userInteractionEnabled = YES;
+    //self.title = otherUsersName;
+    
+    //isChattingWithUser = [[NSString alloc] initWithString:otherUsersName];
+    padding=12;
+    islogEditing = NO;
+    [super setEditing:NO animated:NO];
+    [tableViewObj setEditing:NO animated:NO];
+    tableViewObj.separatorColor = [UIColor clearColor];
+    tableViewObj.separatorStyle = UITableViewCellSeparatorStyleNone;
+    [self setupTheView];
+    [self setupTheTable];
+}
+
+
+- (void)setupTheView
+{
+    self.navigationController.navigationBar.tintColor=[UIColor colorWithRed:1.0f/255.f green:70.0f/255.f blue:143.0f/255.f alpha:255.0f/255.f];
+    self.view.backgroundColor=[UIColor colorWithPatternImage:[UIImage imageNamed:@"background.png"]];
+}
+
+
+
+#pragma mark - Tableview Methods
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return 1;
+}
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    //int count = [[chatMessageDict objectForKey:@"alert"] count];
+    return 1;
+}
+
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    //NSDictionary *chatMessageDict;
+    //= [[GlobalObj.chatDictonary valueForKey:otherUsersName] objectAtIndex:indexPath.section];
+    //[GlobalObj.chatDictonary objectAtIndex:indexPath.section];
+    
+    static NSString *CellIdentifier = @"MessageCellIdentifier";
+    
+    SMMessageViewTableCell *cell = (SMMessageViewTableCell *)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    
+    if (cell == nil)
+    {
+        cell = [[SMMessageViewTableCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:CellIdentifier];
+    }
+    [cell setBackgroundColor:[UIColor clearColor]];
+    
+    NSString *sender =[NSString stringWithString:[chatMessageDict objectForKey:@"sname"]] ;
+    NSString *message =[NSString stringWithString:[chatMessageDict objectForKey:@"alert"]] ;
+    //    NSString *time =[NSString stringWithString:[chatMessageDict objectForKey:@"dt"]] ;
+    
+    cell.messageContentView.text = message;
+    cell.accessoryType = UITableViewCellAccessoryNone;
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    cell.userInteractionEnabled = YES;
+    
+    UIImage *bgImage = nil;
+    
+    CGSize size;
+    
+    CGSize textSize = { 290.0, 10000.0 };
+    
+    size = [message sizeWithFont:[UIFont boldSystemFontOfSize:13]constrainedToSize:textSize lineBreakMode:NSLineBreakByWordWrapping];
+    
+    size.width += (padding/2);
+    [cell.messageContentView setFont:[UIFont systemFontOfSize:14]];
+    [cell.messageContentView setTextColor:[UIColor darkTextColor]];
+    int sizeOfWidthHeight = 10;
+    //        if ([[chatMessageDict valueForKey:@"F"]intValue] == 0)
+    //        {
+    //  int HW = 5;
+    if ([sender isEqualToString:@"me"])
+    {
+        // left aligned
+        
+        bgImage = [[UIImage imageNamed:@"orange.png"] stretchableImageWithLeftCapWidth:24  topCapHeight:15];
+        [cell.messageContentView setFrame:CGRectMake(2, padding*2, size.width+sizeOfWidthHeight+2, size.height+sizeOfWidthHeight+16)];
+        [cell.bgImageView setFrame:CGRectMake( cell.messageContentView.frame.origin.x - padding/2, cell.messageContentView.frame.origin.y - padding/2, size.width+padding + sizeOfWidthHeight-5,size.height+padding+sizeOfWidthHeight+16)];
+    }
+    else
+    {
+        int xOrigin = padding + 10;
+        bgImage = [[UIImage imageNamed:@"aqua.png"] stretchableImageWithLeftCapWidth:24  topCapHeight:15];
+   
+        [cell.messageContentView setFrame:CGRectMake(316 - size.width - xOrigin ,padding*2,size.width+sizeOfWidthHeight+20,size.height+sizeOfWidthHeight+16)];
+        //        }
+        [cell.bgImageView setFrame:CGRectMake(cell.messageContentView.frame.origin.x - 3, cell.messageContentView.frame.origin.y - padding/2, size.width+padding + sizeOfWidthHeight-5 ,size.height+padding+sizeOfWidthHeight+16)];
+    }
+   
+    cell.bgImageView.image = bgImage;
+    
+  
+    [cell.senderAndTimeLabel setFrame:CGRectMake(0, 5, SCREEN_WIDTH, 25)];
+    //        }
+    cell.senderAndTimeLabel.textAlignment = NSTextAlignmentCenter;
+    cell.senderAndTimeLabel.font = [UIFont systemFontOfSize:11.0];
+    [cell.senderAndTimeLabel setFont:[UIFont fontWithName:@"Helvetica-Bold" size:11]];
+    
+    return cell;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    //NSDictionary *chatMessageDict;
+    //=[[GlobalObj.chatDictonary valueForKey:otherUsersName] objectAtIndex:indexPath.section];
+    //[GlobalObj.chatDictonary objectAtIndex:indexPath.section];
+    
+    CGSize  textSize = { 290.0, 10000.0 };
+    CGSize size = [[chatMessageDict valueForKey:@"sname"] sizeWithFont:[UIFont boldSystemFontOfSize:13]constrainedToSize:textSize lineBreakMode:NSLineBreakByWordWrapping];
+    
+    size.height += padding+10*2;
+    CGFloat height;// = size.height < 80 ? 110 : size.height;
+    
+    if (size.height < 90)
+    {
+        height = size.height;
+    }
+    else
+    {
+        height = size.height+30;
+    }
+    return height+30;
+}
+
+
+#pragma mark - Textfield Methods
+
+- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField
+{
+    [UIView animateWithDuration:0.3 animations:^{
+        if(tableViewObj.frame.size.height == 330)
+        {
+            float height = tableViewObj.frame.size.height;
+            height = height - 170;
+            [tableViewObj setFrame:CGRectMake(0.0, 0.0, SCREEN_WIDTH, height)];
+        }
+        [textFieldObj setFrame:CGRectMake(0.0, 164.0, SCREEN_WIDTH, 31.0)];
+    }];
+    [self setupTheTable];
+    return YES;
+}
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+    [textFieldObj resignFirstResponder];
+    if([textField.text length]>0)
+    {
+        textField.userInteractionEnabled = NO;
+        [self sendTheMessage];
+    }
+    
+    [UIView animateWithDuration:0.3 animations:^{
+        [textFieldObj setFrame:CGRectMake(0.0, 330.0, SCREEN_WIDTH, 31.0)];
+        [tableViewObj setFrame:CGRectMake(0.0, 0.0, SCREEN_WIDTH, 330.0)];
+    }];
+    //    [self setupTheTable];
+    return YES;
+}
+
+- (void)sendTheMessage
+{
+    NSMutableDictionary *chatDict = [[NSMutableDictionary alloc] init];
+    [chatDict setValue:textFieldObj.text forKey:@"message"];
+    [chatDict setValue:otherUsersID forKey:@"recieverID"];
+//    chatServiceObj = [[ChatService alloc]init];
+//    chatServiceObj.delegate = self;
+//    [chatServiceObj sendTheChatMessage:chatDict];
+}
+
+- (void)responseForChatService:(BOOL)isChatSent
+{
+    textFieldObj.userInteractionEnabled = YES;
+    
+    if(isChatSent == YES)
+    {
+        [self addMyChatInTable];
+        [self setupTheTable];
+    }
+}
+
+- (void)addMyChatInTable
+{
+    NSString *chatMessage = textFieldObj.text;
+    NSMutableDictionary *chatDictonary = [[NSMutableDictionary alloc] init];
+    
+    [chatDictonary setValue:chatMessage forKey:@"alert"];
+    [chatDictonary setValue:@"me" forKey:@"sname"];
+    
+//    if([[GlobalObj.chatDictonary allKeys] containsObject:otherUsersName])
+//    {
+//        [[GlobalObj.chatDictonary valueForKey:otherUsersName] addObject:chatDictonary];
+//    }
+//    else
+//    {
+//        NSMutableArray *chatDictArr = [NSMutableArray arrayWithObject:chatDictonary];
+//        [GlobalObj.chatDictonary setValue:chatDictArr forKey:otherUsersName];
+//    }
+}
+
+- (void)setupTheTable
+{
+//    int lastCellNo = [[GlobalObj.chatDictonary objectForKey:otherUsersName] count]-1;
+//    textFieldObj.text = @"";
+//    [tableViewObj reloadData];
+//    if(lastCellNo!=-1)
+//    {
+//        [tableViewObj scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:lastCellNo] atScrollPosition:UITableViewScrollPositionMiddle animated:YES];
+//    }
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    self.title = @"Back";
+    isChattingWithUser = @"";
+    [super viewWillDisappear:YES];
+}
+
+- (void)viewDidUnload
+{
+    [super viewDidUnload];
+    // Release any retained subviews of the main view.
+    // e.g. self.myOutlet = nil;
+}
+
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
+{
+    return (interfaceOrientation == UIInterfaceOrientationPortrait);
+}
+
+
+@end
